@@ -15,6 +15,8 @@
     <LangVersion>latest</LangVersion>
     <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
     <Version>0.1.0</Version>
+    <!-- ZfxShell yerel bir DLL; hedef platform sürümü karşılaştırması anlamsız -->
+    <MSBuildWarningsAsMessages>$(MSBuildWarningsAsMessages);MSB3851</MSBuildWarningsAsMessages>
   </PropertyGroup>
 
   <ItemGroup>

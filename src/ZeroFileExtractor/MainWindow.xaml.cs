@@ -503,7 +503,7 @@ public sealed partial class MainWindow : Window
 
     private void FileList_KeyDown(object sender, KeyRoutedEventArgs e)
     {
-        bool ctrl = InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Control).HasFlag(global::Windows.UI.Core.CoreVirtualKeyStates.Down);
+        bool ctrl = Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Control).HasFlag(global::Windows.UI.Core.CoreVirtualKeyStates.Down);
         string? tag = e.Key switch
         {
             VirtualKey.Enter => "OpenItem",
