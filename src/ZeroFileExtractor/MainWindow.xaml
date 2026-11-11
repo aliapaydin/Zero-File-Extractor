@@ -1,0 +1,493 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="ZeroFileExtractor.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:ZeroFileExtractor.Controls"
+    xmlns:models="using:ZeroFileExtractor.Models"
+    Title="Zero File Extractor">
+
+    <Window.SystemBackdrop>
+        <MicaBackdrop />
+    </Window.SystemBackdrop>
+
+    <Grid
+        x:Name="RootGrid"
+        RowDefinitions="36,Auto,Auto,Auto,*,Auto"
+        AllowDrop="True"
+        DragOver="Root_DragOver"
+        DragLeave="Root_DragLeave"
+        Drop="Root_Drop"
+        ActualThemeChanged="RootGrid_ActualThemeChanged">
+        <Grid.KeyboardAccelerators>
+            <KeyboardAccelerator Key="O" Modifiers="Control" Invoked="Accel_Invoked" />
+            <KeyboardAccelerator Key="N" Modifiers="Control" Invoked="Accel_Invoked" />
+            <KeyboardAccelerator Key="N" Modifiers="Control,Shift" Invoked="Accel_Invoked" />
+            <KeyboardAccelerator Key="W" Modifiers="Control" Invoked="Accel_Invoked" />
+            <KeyboardAccelerator Key="E" Modifiers="Control" Invoked="Accel_Invoked" />
+            <KeyboardAccelerator Key="E" Modifiers="Control,Shift" Invoked="Accel_Invoked" />
+            <KeyboardAccelerator Key="H" Modifiers="Control,Shift" Invoked="Accel_Invoked" />
+            <KeyboardAccelerator Key="F5" Invoked="Accel_Invoked" />
+            <KeyboardAccelerator Key="F6" Invoked="Accel_Invoked" />
+            <KeyboardAccelerator Key="T" Modifiers="Control" Invoked="Accel_Invoked" />
+            <KeyboardAccelerator Key="Q" Modifiers="Control" Invoked="Accel_Invoked" />
+            <KeyboardAccelerator Key="T" Modifiers="Control,Shift" Invoked="Accel_Invoked" />
+            <KeyboardAccelerator Key="B" Modifiers="Control" Invoked="Accel_Invoked" />
+            <KeyboardAccelerator Key="F" Modifiers="Control" Invoked="Accel_Invoked" />
+            <KeyboardAccelerator Key="A" Modifiers="Control,Shift" Invoked="Accel_Invoked" />
+            <KeyboardAccelerator Key="I" Modifiers="Control" Invoked="Accel_Invoked" />
+            <KeyboardAccelerator Key="C" Modifiers="Control,Shift" Invoked="Accel_Invoked" />
+            <KeyboardAccelerator Key="R" Modifiers="Control" Invoked="Accel_Invoked" />
+            <KeyboardAccelerator Key="Enter" Modifiers="Menu" Invoked="Accel_Invoked" />
+            <KeyboardAccelerator Key="Up" Modifiers="Menu" Invoked="Accel_Invoked" />
+            <KeyboardAccelerator Key="F1" Invoked="Accel_Invoked" />
+            <KeyboardAccelerator Key="F3" Invoked="Accel_Invoked" />
+        </Grid.KeyboardAccelerators>
+
+        <Grid.Resources>
+            <DataTemplate x:Key="RowTemplate" x:DataType="models:ArchiveItem">
+                <Grid ColumnSpacing="10" Height="30">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="22" />
+                        <ColumnDefinition Width="*" MinWidth="140" />
+                        <ColumnDefinition Width="16" />
+                        <ColumnDefinition Width="86" />
+                        <ColumnDefinition Width="96" />
+                        <ColumnDefinition Width="52" />
+                        <ColumnDefinition Width="126" />
+                        <ColumnDefinition Width="132" />
+                    </Grid.ColumnDefinitions>
+                    <Image Source="{x:Bind Icon}" Width="18" Height="18" VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="1" Text="{x:Bind Name}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" ToolTipService.ToolTip="{x:Bind PathInArchive}" />
+                    <FontIcon Grid.Column="2" Glyph="&#xE72E;" FontSize="11" VerticalAlignment="Center" Visibility="{x:Bind LockVisibility}" Foreground="{ThemeResource SignalAmberBrush}" ToolTipService.ToolTip="Şifreli" />
+                    <TextBlock Grid.Column="3" Text="{x:Bind SizeText}" VerticalAlignment="Center" HorizontalAlignment="Right" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Grid.Column="4" Text="{x:Bind PackedText}" VerticalAlignment="Center" HorizontalAlignment="Right" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Grid.Column="5" Text="{x:Bind RatioText}" VerticalAlignment="Center" HorizontalAlignment="Right" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Grid.Column="6" Text="{x:Bind TypeText}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Grid.Column="7" Text="{x:Bind ModifiedText}" VerticalAlignment="Center" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                </Grid>
+            </DataTemplate>
+        </Grid.Resources>
+
+        <!-- Başlık çubuğu (sürüklenebilir alan) -->
+        <Grid x:Name="AppTitleBar" Padding="14,0,0,0" ColumnSpacing="10" ColumnDefinitions="Auto,*">
+            <Image Source="ms-appx:///Assets/Square44x44Logo.targetsize-24_altform-unplated.png" Width="18" Height="18" VerticalAlignment="Center" />
+            <TextBlock x:Name="TitleText" Grid.Column="1" Text="Zero File Extractor" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Style="{StaticResource CaptionTextBlockStyle}" />
+        </Grid>
+
+        <!-- Uygulama menüsü -->
+        <MenuBar x:Name="MainMenu" Grid.Row="1" Padding="4,0,0,0">
+            <MenuBarItem Title="Dosya">
+                <MenuFlyoutItem Text="Arşiv aç…" Tag="Open" Click="Command_Click" KeyboardAcceleratorTextOverride="Ctrl+O">
+                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE8E5;" /></MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+                <MenuFlyoutSubItem x:Name="MenuRecent" Text="Son açılanlar">
+                    <MenuFlyoutSubItem.Icon><FontIcon Glyph="&#xE81C;" /></MenuFlyoutSubItem.Icon>
+                </MenuFlyoutSubItem>
+                <MenuFlyoutSeparator />
+                <MenuFlyoutItem Text="Dosyalardan yeni arşiv…" Tag="NewFromFiles" Click="Command_Click" KeyboardAcceleratorTextOverride="Ctrl+N">
+                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xF012;" /></MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem Text="Klasörden yeni arşiv…" Tag="NewFromFolder" Click="Command_Click" KeyboardAcceleratorTextOverride="Ctrl+Shift+N">
+                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE8F4;" /></MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+                <MenuFlyoutSeparator />
+                <MenuFlyoutItem x:Name="MenuShowInExplorer" Text="Dosya Gezgini'nde göster" Tag="ShowInExplorer" Click="Command_Click">
+                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE838;" /></MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem x:Name="MenuProperties" Text="Arşiv özellikleri" Tag="Properties" Click="Command_Click" KeyboardAcceleratorTextOverride="Alt+Enter">
+                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE946;" /></MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem x:Name="MenuCloseArchive" Text="Arşivi kapat" Tag="CloseArchive" Click="Command_Click" KeyboardAcceleratorTextOverride="Ctrl+W">
+                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE8BB;" /></MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+                <MenuFlyoutSeparator />
+                <MenuFlyoutItem Text="Ayarlar" Tag="Settings" Click="Command_Click" KeyboardAcceleratorTextOverride="Ctrl+,">
+                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE713;" /></MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem Text="Çıkış" Tag="Exit" Click="Command_Click" KeyboardAcceleratorTextOverride="Alt+F4">
+                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE7E8;" /></MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+            </MenuBarItem>
+
+            <MenuBarItem Title="Düzen">
+                <MenuFlyoutItem x:Name="MenuAdd" Text="Arşive dosya ekle…" Tag="AddFiles" Click="Command_Click" KeyboardAcceleratorTextOverride="Insert">
+                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE710;" /></MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem x:Name="MenuAddFolder" Text="Arşive klasör ekle…" Tag="AddFolder" Click="Command_Click">
+                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE8F4;" /></MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem x:Name="MenuDelete" Text="Arşivden sil" Tag="Delete" Click="Command_Click" KeyboardAcceleratorTextOverride="Del">
+                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE74D;" /></MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+                <MenuFlyoutSeparator />
+                <MenuFlyoutItem x:Name="MenuCopy" Text="Kopyala" Tag="Copy" Click="Command_Click" KeyboardAcceleratorTextOverride="Ctrl+C">
+                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE8C8;" /></MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem x:Name="MenuCopyPath" Text="Arşiv içi yolu kopyala" Tag="CopyPath" Click="Command_Click" KeyboardAcceleratorTextOverride="Ctrl+Shift+C">
+                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE71B;" /></MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+                <MenuFlyoutSeparator />
+                <MenuFlyoutItem Text="Tümünü seç" Tag="SelectAll" Click="Command_Click" KeyboardAcceleratorTextOverride="Ctrl+A" />
+                <MenuFlyoutItem Text="Seçimi tersine çevir" Tag="InvertSelection" Click="Command_Click" KeyboardAcceleratorTextOverride="Ctrl+I" />
+                <MenuFlyoutSeparator />
+                <MenuFlyoutItem Text="Arşivde ara" Tag="Search" Click="Command_Click" KeyboardAcceleratorTextOverride="Ctrl+F">
+                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE721;" /></MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+            </MenuBarItem>
+
+            <MenuBarItem Title="İşlemler">
+                <MenuFlyoutItem x:Name="MenuExtractAll" Text="Tümünü çıkar…" Tag="ExtractAll" Click="Command_Click" KeyboardAcceleratorTextOverride="Ctrl+E">
+                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE8B7;" /></MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem x:Name="MenuExtractSelected" Text="Seçilenleri çıkar…" Tag="ExtractSelected" Click="Command_Click" KeyboardAcceleratorTextOverride="Ctrl+Shift+E">
+                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE8DE;" /></MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem x:Name="MenuExtractHere" Text="Arşivin yanına çıkar" Tag="ExtractHere" Click="Command_Click" KeyboardAcceleratorTextOverride="Ctrl+Shift+H">
+                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE896;" /></MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+                <MenuFlyoutSeparator />
+                <MenuFlyoutItem x:Name="MenuTest" Text="Arşivi test et" Tag="Test" Click="Command_Click" KeyboardAcceleratorTextOverride="Ctrl+T">
+                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE9D5;" /></MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem x:Name="MenuChecksum" Text="SHA-256 özetini hesapla" Tag="Checksum" Click="Command_Click">
+                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE8D7;" /></MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+                <MenuFlyoutSeparator />
+                <MenuFlyoutItem x:Name="MenuOpenItem" Text="Aç" Tag="OpenItem" Click="Command_Click" KeyboardAcceleratorTextOverride="Enter">
+                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE8E5;" /></MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem x:Name="MenuPreviewItem" Text="Önizle" Tag="Preview" Click="Command_Click" KeyboardAcceleratorTextOverride="F3">
+                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE8FF;" /></MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem x:Name="MenuUp" Text="Üst klasör" Tag="Up" Click="Command_Click" KeyboardAcceleratorTextOverride="Backspace">
+                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE74A;" /></MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+            </MenuBarItem>
+
+            <MenuBarItem Title="Görünüm">
+                <ToggleMenuFlyoutItem x:Name="MenuShowRibbon" Text="Şerit" Tag="ToggleRibbon" Click="Command_Click" />
+                <ToggleMenuFlyoutItem x:Name="MenuShowTree" Text="Klasör ağacı" Tag="ToggleTree" Click="Command_Click" KeyboardAcceleratorTextOverride="Ctrl+Shift+T" />
+                <ToggleMenuFlyoutItem x:Name="MenuShowPreview" Text="Önizleme paneli" Tag="TogglePreview" Click="Command_Click" KeyboardAcceleratorTextOverride="Ctrl+Q" />
+                <ToggleMenuFlyoutItem x:Name="MenuShowStatus" Text="Durum çubuğu" Tag="ToggleStatus" Click="Command_Click" />
+                <MenuFlyoutSeparator />
+                <ToggleMenuFlyoutItem x:Name="MenuFlat" Text="Düz görünüm (tüm dosyalar)" Tag="ToggleFlat" Click="Command_Click" KeyboardAcceleratorTextOverride="Ctrl+B" />
+                <MenuFlyoutItem Text="Yenile" Tag="Refresh" Click="Command_Click" KeyboardAcceleratorTextOverride="Ctrl+R">
+                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE72C;" /></MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+                <MenuFlyoutSeparator />
+                <MenuFlyoutSubItem Text="Tema">
+                    <MenuFlyoutSubItem.Icon><FontIcon Glyph="&#xE790;" /></MenuFlyoutSubItem.Icon>
+                    <RadioMenuFlyoutItem x:Name="MenuThemeSystem" Text="Sisteme göre" GroupName="theme" Tag="Theme0" Click="Command_Click" />
+                    <RadioMenuFlyoutItem x:Name="MenuThemeLight" Text="Aydınlık" GroupName="theme" Tag="Theme1" Click="Command_Click" />
+                    <RadioMenuFlyoutItem x:Name="MenuThemeDark" Text="Karanlık" GroupName="theme" Tag="Theme2" Click="Command_Click" />
+                </MenuFlyoutSubItem>
+            </MenuBarItem>
+
+            <MenuBarItem Title="Yardım">
+                <MenuFlyoutItem Text="Klavye kısayolları" Tag="Shortcuts" Click="Command_Click" KeyboardAcceleratorTextOverride="F1">
+                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE765;" /></MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem Text="Hata günlüğünü aç" Tag="OpenLog" Click="Command_Click">
+                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE9D9;" /></MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem Text="GitHub sayfası" Tag="GitHub" Click="Command_Click">
+                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE774;" /></MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+                <MenuFlyoutSeparator />
+                <MenuFlyoutItem Text="Hakkında" Tag="About" Click="Command_Click">
+                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE946;" /></MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+            </MenuBarItem>
+        </MenuBar>
+
+        <!-- Şerit -->
+        <Grid x:Name="RibbonArea" Grid.Row="2" Padding="8,0,8,6" ColumnSpacing="8" ColumnDefinitions="Auto,*">
+            <Border
+                x:Name="ContextTag"
+                Padding="10,4"
+                VerticalAlignment="Center"
+                CornerRadius="6"
+                Visibility="Collapsed"
+                Background="{ThemeResource AccentFillColorDefaultBrush}">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <FontIcon Glyph="&#xF012;" FontSize="13" Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}" />
+                    <TextBlock x:Name="ContextTagText" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}" />
+                </StackPanel>
+            </Border>
+            <CommandBar
+                x:Name="Ribbon"
+                Grid.Column="1"
+                HorizontalAlignment="Left"
+                DefaultLabelPosition="Right"
+                Background="Transparent"
+                IsDynamicOverflowEnabled="True">
+                <AppBarButton Label="Aç" Tag="Open" Click="Command_Click" ToolTipService.ToolTip="Arşiv aç (Ctrl+O)">
+                    <AppBarButton.Icon><FontIcon Glyph="&#xE8E5;" /></AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton Label="Yeni arşiv" ToolTipService.ToolTip="Dosya ya da klasörlerden yeni arşiv oluştur">
+                    <AppBarButton.Icon><FontIcon Glyph="&#xF012;" /></AppBarButton.Icon>
+                    <AppBarButton.Flyout>
+                        <MenuFlyout Placement="BottomEdgeAlignedLeft">
+                            <MenuFlyoutItem Text="Dosyalardan…" Tag="NewFromFiles" Click="Command_Click" KeyboardAcceleratorTextOverride="Ctrl+N" />
+                            <MenuFlyoutItem Text="Klasörden…" Tag="NewFromFolder" Click="Command_Click" KeyboardAcceleratorTextOverride="Ctrl+Shift+N" />
+                        </MenuFlyout>
+                    </AppBarButton.Flyout>
+                </AppBarButton>
+                <AppBarSeparator />
+                <AppBarButton x:Name="RbExtractAll" Label="Tümünü çıkar" Tag="ExtractAll" Click="Command_Click" ToolTipService.ToolTip="Tüm arşivi çıkar (Ctrl+E / F5)">
+                    <AppBarButton.Icon><FontIcon Glyph="&#xE8B7;" /></AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton x:Name="RbExtractSelected" Label="Seçileni çıkar" Tag="ExtractSelected" Click="Command_Click" ToolTipService.ToolTip="Seçilen öğeleri çıkar (Ctrl+Shift+E / F6)">
+                    <AppBarButton.Icon><FontIcon Glyph="&#xE8DE;" /></AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton x:Name="RbExtractHere" Label="Yanına çıkar" Tag="ExtractHere" Click="Command_Click" ToolTipService.ToolTip="Arşivin bulunduğu klasöre çıkar (Ctrl+Shift+H)">
+                    <AppBarButton.Icon><FontIcon Glyph="&#xE896;" /></AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarSeparator />
+                <AppBarButton x:Name="RbAdd" Label="Ekle" Tag="AddFiles" Click="Command_Click" ToolTipService.ToolTip="Arşive dosya ekle (Insert) · yalnızca ZIP">
+                    <AppBarButton.Icon><FontIcon Glyph="&#xE710;" /></AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton x:Name="RbDelete" Label="Sil" Tag="Delete" Click="Command_Click" ToolTipService.ToolTip="Arşivden sil (Del) · yalnızca ZIP">
+                    <AppBarButton.Icon><FontIcon Glyph="&#xE74D;" /></AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarSeparator />
+                <AppBarButton x:Name="RbTest" Label="Test et" Tag="Test" Click="Command_Click" ToolTipService.ToolTip="Arşivin bütünlüğünü doğrula (Ctrl+T)">
+                    <AppBarButton.Icon><FontIcon Glyph="&#xE9D5;" /></AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton x:Name="RbPreview" Label="Önizle" Tag="Preview" Click="Command_Click" ToolTipService.ToolTip="Önizle (F3)">
+                    <AppBarButton.Icon><FontIcon Glyph="&#xE8FF;" /></AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton x:Name="RbProperties" Label="Özellikler" Tag="Properties" Click="Command_Click" ToolTipService.ToolTip="Arşiv özellikleri (Alt+Enter)">
+                    <AppBarButton.Icon><FontIcon Glyph="&#xE946;" /></AppBarButton.Icon>
+                </AppBarButton>
+            </CommandBar>
+        </Grid>
+
+        <!-- Yol çubuğu: yukarı, ekmek kırıntıları, arama -->
+        <Grid x:Name="PathBar" Grid.Row="3" Padding="10,0,10,8" ColumnSpacing="8" ColumnDefinitions="Auto,*,260">
+            <Button x:Name="UpButton" Tag="Up" Click="Command_Click" Padding="8,6" ToolTipService.ToolTip="Üst klasör (Backspace)" AutomationProperties.Name="Üst klasör">
+                <FontIcon Glyph="&#xE74A;" FontSize="14" />
+            </Button>
+            <Border
+                Grid.Column="1"
+                Padding="10,0"
+                CornerRadius="6"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1">
+                <BreadcrumbBar x:Name="Crumbs" VerticalAlignment="Center" ItemClicked="Crumbs_ItemClicked" />
+            </Border>
+            <AutoSuggestBox
+                x:Name="SearchBox"
+                Grid.Column="2"
+                PlaceholderText="Arşivde ara (Ctrl+F)"
+                QueryIcon="Find"
+                TextChanged="SearchBox_TextChanged"
+                KeyDown="SearchBox_KeyDown" />
+        </Grid>
+
+        <!-- İçerik: klasör ağacı | dosya listesi | önizleme -->
+        <Grid x:Name="ContentGrid" Grid.Row="4" Padding="10,0,10,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition x:Name="TreeColumn" Width="0" />
+                <ColumnDefinition x:Name="TreeSplitColumn" Width="0" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition x:Name="PreviewSplitColumn" Width="0" />
+                <ColumnDefinition x:Name="PreviewColumn" Width="0" />
+            </Grid.ColumnDefinitions>
+
+            <Border
+                x:Name="TreeHost"
+                Padding="4"
+                Visibility="Collapsed"
+                CornerRadius="10"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1">
+                <TreeView x:Name="FolderTree" SelectionMode="Single" Expanding="FolderTree_Expanding" ItemInvoked="FolderTree_ItemInvoked" />
+            </Border>
+            <controls:PaneSplitter x:Name="TreeSplitter" Grid.Column="1" Visibility="Collapsed" />
+
+            <!-- Dosya listesi -->
+            <Border
+                Grid.Column="2"
+                CornerRadius="10"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1">
+                <Grid RowDefinitions="Auto,*">
+                    <Grid
+                        x:Name="HeaderRow"
+                        Padding="16,4,28,4"
+                        ColumnSpacing="10"
+                        BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                        BorderThickness="0,0,0,1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="22" />
+                            <ColumnDefinition Width="*" MinWidth="140" />
+                            <ColumnDefinition Width="16" />
+                            <ColumnDefinition Width="86" />
+                            <ColumnDefinition Width="96" />
+                            <ColumnDefinition Width="52" />
+                            <ColumnDefinition Width="126" />
+                            <ColumnDefinition Width="132" />
+                        </Grid.ColumnDefinitions>
+                        <Button x:Name="HeadName" Grid.Column="1" Tag="Name" Content="Ad" Click="Header_Click" Background="Transparent" BorderThickness="0" Padding="4,4" HorizontalAlignment="Left" />
+                        <Button x:Name="HeadSize" Grid.Column="3" Tag="Size" Content="Boyut" Click="Header_Click" Background="Transparent" BorderThickness="0" Padding="4,4" HorizontalAlignment="Right" />
+                        <Button x:Name="HeadPacked" Grid.Column="4" Tag="Packed" Content="Sıkıştırılmış" Click="Header_Click" Background="Transparent" BorderThickness="0" Padding="4,4" HorizontalAlignment="Right" />
+                        <Button x:Name="HeadRatio" Grid.Column="5" Tag="Ratio" Content="Oran" Click="Header_Click" Background="Transparent" BorderThickness="0" Padding="4,4" HorizontalAlignment="Right" />
+                        <Button x:Name="HeadType" Grid.Column="6" Tag="Type" Content="Tür" Click="Header_Click" Background="Transparent" BorderThickness="0" Padding="4,4" HorizontalAlignment="Left" />
+                        <Button x:Name="HeadModified" Grid.Column="7" Tag="Modified" Content="Değiştirilme" Click="Header_Click" Background="Transparent" BorderThickness="0" Padding="4,4" HorizontalAlignment="Left" />
+                    </Grid>
+
+                    <ListView
+                        x:Name="FileList"
+                        Grid.Row="1"
+                        SelectionMode="Extended"
+                        CanDragItems="True"
+                        ItemTemplate="{StaticResource RowTemplate}"
+                        DoubleTapped="FileList_DoubleTapped"
+                        KeyDown="FileList_KeyDown"
+                        SelectionChanged="FileList_SelectionChanged"
+                        DragItemsStarting="FileList_DragItemsStarting">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem" BasedOn="{StaticResource DefaultListViewItemStyle}">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                <Setter Property="MinHeight" Value="32" />
+                                <Setter Property="Padding" Value="12,0,12,0" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.ContextFlyout>
+                            <MenuFlyout x:Name="ItemMenu" Opening="ItemMenu_Opening">
+                                <MenuFlyoutItem Text="Aç" Tag="OpenItem" Click="Command_Click" KeyboardAcceleratorTextOverride="Enter">
+                                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE8E5;" /></MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
+                                <MenuFlyoutItem Text="Önizle" Tag="Preview" Click="Command_Click" KeyboardAcceleratorTextOverride="F3">
+                                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE8FF;" /></MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
+                                <MenuFlyoutSeparator />
+                                <MenuFlyoutItem Text="Seçilenleri çıkar…" Tag="ExtractSelected" Click="Command_Click" KeyboardAcceleratorTextOverride="Ctrl+Shift+E">
+                                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE8DE;" /></MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
+                                <MenuFlyoutItem Text="Kopyala" Tag="Copy" Click="Command_Click" KeyboardAcceleratorTextOverride="Ctrl+C">
+                                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE8C8;" /></MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
+                                <MenuFlyoutItem Text="Arşiv içi yolu kopyala" Tag="CopyPath" Click="Command_Click" KeyboardAcceleratorTextOverride="Ctrl+Shift+C">
+                                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE71B;" /></MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
+                                <MenuFlyoutSeparator />
+                                <MenuFlyoutItem x:Name="ItemMenuDelete" Text="Arşivden sil" Tag="Delete" Click="Command_Click" KeyboardAcceleratorTextOverride="Del">
+                                    <MenuFlyoutItem.Icon><FontIcon Glyph="&#xE74D;" /></MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
+                            </MenuFlyout>
+                        </ListView.ContextFlyout>
+                    </ListView>
+
+                    <TextBlock
+                        x:Name="EmptyText"
+                        Grid.Row="1"
+                        Visibility="Collapsed"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+
+                    <!-- Karşılama: arşiv açık değilken -->
+                    <ScrollViewer x:Name="WelcomePanel" Grid.RowSpan="2" VerticalScrollBarVisibility="Auto" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="14" MaxWidth="520" Padding="24">
+                            <Image Source="ms-appx:///Assets/Square150x150Logo.scale-200.png" Width="84" Height="84" />
+                            <TextBlock Text="Bir arşivi buraya sürükle" HorizontalAlignment="Center" Style="{StaticResource TitleTextBlockStyle}" />
+                            <TextBlock
+                                Text="ZIP, RAR, 7Z, TAR, GZ, BZ2, XZ, ZST ve daha fazlasını açar. Dosya ya da klasör bırakırsan yeni arşiv oluşturur."
+                                HorizontalAlignment="Center"
+                                TextAlignment="Center"
+                                TextWrapping="Wrap"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8">
+                                <Button Tag="Open" Click="Command_Click" Style="{StaticResource AccentButtonStyle}" Content="Arşiv aç" MinWidth="130" />
+                                <Button Tag="NewFromFiles" Click="Command_Click" Content="Dosyalardan yeni arşiv" />
+                                <Button Tag="NewFromFolder" Click="Command_Click" Content="Klasörden yeni arşiv" />
+                            </StackPanel>
+                            <StackPanel x:Name="RecentPanel" Spacing="4" Margin="0,12,0,0" Visibility="Collapsed">
+                                <TextBlock Text="Son açılanlar" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                <StackPanel x:Name="RecentList" Spacing="2" />
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- Yükleniyor -->
+                    <StackPanel x:Name="LoadingPanel" Grid.RowSpan="2" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
+                        <ProgressRing IsActive="True" Width="36" Height="36" />
+                        <TextBlock x:Name="LoadingText" Text="Arşiv okunuyor…" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    </StackPanel>
+
+                    <!-- Bırakma ipucu -->
+                    <Border
+                        x:Name="DropHint"
+                        Grid.RowSpan="2"
+                        Visibility="Collapsed"
+                        IsHitTestVisible="False"
+                        CornerRadius="10"
+                        BorderThickness="2"
+                        BorderBrush="{ThemeResource AccentFillColorDefaultBrush}"
+                        Background="{ThemeResource LayerOnMicaBaseAltFillColorDefaultBrush}">
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
+                            <FontIcon Glyph="&#xE896;" FontSize="34" Foreground="{ThemeResource AccentFillColorDefaultBrush}" />
+                            <TextBlock x:Name="DropHintText" Style="{StaticResource SubtitleTextBlockStyle}" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <controls:PaneSplitter x:Name="PreviewSplitter" Grid.Column="3" Visibility="Collapsed" />
+
+            <!-- Önizleme -->
+            <Border
+                x:Name="PreviewHost"
+                Grid.Column="4"
+                Visibility="Collapsed"
+                CornerRadius="10"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1">
+                <Grid RowDefinitions="Auto,*">
+                    <Grid Padding="14,8,6,8" ColumnDefinitions="*,Auto" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
+                        <TextBlock x:Name="PreviewTitle" Text="Önizleme" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                        <Button Grid.Column="1" Tag="TogglePreview" Click="Command_Click" Background="Transparent" BorderThickness="0" Padding="8,6" ToolTipService.ToolTip="Önizlemeyi kapat (Ctrl+Q)" AutomationProperties.Name="Önizlemeyi kapat">
+                            <FontIcon Glyph="&#xE8BB;" FontSize="11" />
+                        </Button>
+                    </Grid>
+                    <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Padding="14,10,14,14">
+                        <StackPanel Spacing="10">
+                            <ProgressRing x:Name="PreviewBusy" IsActive="False" Visibility="Collapsed" Width="28" Height="28" HorizontalAlignment="Left" />
+                            <Image x:Name="PreviewImage" Visibility="Collapsed" Stretch="Uniform" MaxHeight="420" HorizontalAlignment="Left" />
+                            <TextBlock x:Name="PreviewText" Visibility="Collapsed" FontFamily="Cascadia Mono, Consolas" FontSize="12" IsTextSelectionEnabled="True" />
+                            <StackPanel x:Name="PreviewInfo" Spacing="4" />
+                            <Button x:Name="PreviewLoadButton" Visibility="Collapsed" Content="Önizlemeyi yükle" Click="PreviewLoad_Click" />
+                            <TextBlock x:Name="PreviewNote" Visibility="Collapsed" TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Durum çubuğu -->
+        <Grid
+            x:Name="StatusBar"
+            Grid.Row="5"
+            Padding="14,6,14,8"
+            ColumnSpacing="14"
+            ColumnDefinitions="*,Auto"
+            BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+            BorderThickness="0,1,0,0">
+            <TextBlock x:Name="StatusText" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="F1: klavye kısayolları" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12">
+                <StackPanel x:Name="EncryptedBadge" Orientation="Horizontal" Spacing="4" Visibility="Collapsed">
+                    <FontIcon Glyph="&#xE72E;" FontSize="11" Foreground="{ThemeResource SignalAmberBrush}" />
+                    <TextBlock Text="Şifreli" Style="{StaticResource CaptionTextBlockStyle}" />
+                </StackPanel>
+                <TextBlock x:Name="ArchiveInfoText" VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>

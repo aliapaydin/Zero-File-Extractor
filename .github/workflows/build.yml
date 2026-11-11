@@ -1,0 +1,43 @@
+name: build
+
+on:
+  push:
+    branches: [main, "feature/**"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [x64, ARM64]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - uses: microsoft/setup-msbuild@v2
+
+      - name: Restore
+        run: msbuild ZeroFileExtractor.sln /t:Restore /p:Configuration=Release /p:Platform=${{ matrix.platform }}
+
+      - name: Build
+        run: >
+          msbuild ZeroFileExtractor.sln
+          /p:Configuration=Release
+          /p:Platform=${{ matrix.platform }}
+          /p:AppxPackageSigningEnabled=false
+          /p:GenerateAppxPackageOnBuild=false
+          /m /nologo /v:minimal
+
+      - name: Sağ tık menüsü DLL'i çıktıda mı
+        shell: pwsh
+        run: |
+          $dll = Get-ChildItem src/ZeroFileExtractor/bin -Recurse -Filter ZfxShell.dll | Select-Object -First 1
+          if (-not $dll) { throw "ZfxShell.dll uygulama çıktısında yok" }
+          $dll.FullName

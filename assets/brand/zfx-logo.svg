@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 64 64">
+  <title>Zero File Extractor</title>
+  <rect width="64" height="64" rx="16" fill="#1f6fd6"/>
+  <rect x="16" y="15" width="32" height="40" rx="16" fill="none" stroke="#ffffff" stroke-width="6.5"/>
+  <path d="M32 42V8M24 16 32 8 40 16" fill="none" stroke="#1f6fd6" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M32 42V8M24 16 32 8 40 16" fill="none" stroke="#f2b84b" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Application
+    x:Class="ZeroFileExtractor.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- Marka renkleri: Zero File Commander ile ortak (bkz. docs/DESIGN.md) -->
+            <SolidColorBrush x:Key="ZeroBlueBrush" Color="#1F6FD6" />
+            <SolidColorBrush x:Key="SignalAmberBrush" Color="#F2B84B" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
